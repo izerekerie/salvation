@@ -1,1 +1,3 @@
-export class CreateWarfareDto {}
+import { Warfare } from '../entities/warfare.entity';
+
+export class CreateWarfareDto extends Warfare {}

@@ -13,6 +13,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { RoleGuard } from 'src/auth/role/role.guard';
+import { Role } from '@prisma/client';
+import { Roles } from 'src/auth/roles/roles.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -21,14 +25,24 @@ export class UsersController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.createUser(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    return await this.usersService.createUser(createUserDto);
   }
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: User, isArray: true })
   async getAllUser() {
-    return this.usersService.findAllUsers();
+    return await this.usersService.findAllUsers();
+  }
+
+  @Patch(':id')
+  async updateUser(@Param('id') id: number, @Body() updateUser: UpdateUserDto) {
+    return await this.usersService.updateUser(+id, updateUser);
+  }
+  @Patch('')
+  async updateEmptyuserRoles() {
+    await this.usersService.addRoleTousers();
   }
 }

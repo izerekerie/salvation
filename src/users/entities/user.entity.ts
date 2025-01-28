@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, MinLength } from 'class-validator';
+import { Role } from '@prisma/client';
+import { IsEmail, IsString, MinLength } from 'class-validator';
 
 export class User {
   @ApiProperty()
@@ -15,4 +16,6 @@ export class User {
   @ApiProperty()
   @MinLength(6, { message: 'Confirm Passowrd must be atlest 6 character long' })
   confirmPassword: string;
+  @ApiProperty({ isArray: true, enum: Role })
+  roles: Role[];
 }

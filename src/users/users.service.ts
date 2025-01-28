@@ -7,6 +7,11 @@ import { CreateUserDto } from './dto/create-user.dto';
 
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { use } from 'passport';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { isEmpty } from 'class-validator';
+import { error } from 'console';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -24,7 +29,7 @@ export class UsersService {
   }
   async createUser(user: Partial<CreateUserDto>) {
     if (user.password !== user.confirmPassword) {
-      throw new BadRequestException('Passwords doe not match');
+      throw new BadRequestException('Passwords does not match');
     }
     const hashedPass = await bcrypt.hash(user.password, 10);
     return this.prisma.user.create({
@@ -32,7 +37,33 @@ export class UsersService {
         username: user.username,
         email: user.email,
         password: hashedPass,
+        roles: user.roles,
       },
     });
+  }
+  async updateUser(id: number, updatedUser: Partial<UpdateUserDto>) {
+    return this.prisma.user.update({
+      where: { id },
+      data: updatedUser,
+    });
+  }
+  async addRoleTousers() {
+    try {
+      const updatedUsers = await this.prisma.user.updateMany({
+        where: {
+          OR: [
+            { roles: { equals: [] } }, // empty array
+            { roles: { equals: null } }, // null roles
+          ],
+        },
+        data: {
+          roles: { set: [Role.CUSTOMER] },
+        },
+      });
+
+      return updatedUsers;
+    } catch (err) {
+      throw error;
+    }
   }
 }

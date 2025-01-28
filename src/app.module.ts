@@ -8,6 +8,7 @@ import { UsersService } from './users/users.service';
 import { ConfigModule } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { WarfareModule } from './warfare/warfare.module';
+import { WarfareService } from './warfare/warfare.service';
 
 @Module({
   imports: [
@@ -20,6 +21,6 @@ import { WarfareModule } from './warfare/warfare.module';
     WarfareModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, UsersService],
+  providers: [AppService, PrismaService, UsersService, WarfareService],
 })
 export class AppModule {}

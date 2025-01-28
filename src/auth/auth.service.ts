@@ -5,7 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { access } from 'fs';
+import { Role } from '@prisma/client';
 @Injectable()
 export class AuthService {
   constructor(
@@ -23,11 +23,10 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.validateUser(email, password);
-    const payload = { sub: user.id, email: user.email };
-    return this.createToken(user.id, user.email);
+    return this.createToken(user.id, user.email, user.roles);
   }
-  async createToken(userId: number, email: string) {
-    const payload = { sub: userId, email };
+  async createToken(userId: number, email: string, roles: Role[]) {
+    const payload = { sub: userId, email, roles };
     return { access_token: this.jwtService.sign(payload) };
   }
   findAll() {
